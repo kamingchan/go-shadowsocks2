@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	obfs "github.com/shadowsocks/go-shadowsocks2/simple-obfs"
 	"github.com/shadowsocks/go-shadowsocks2/socks"
 )
 
@@ -101,6 +102,9 @@ func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 	}
 
 	logf("listening TCP on %s", addr)
+	if config.SimpleObfs != "" {
+		logf("using simple-obfs mode %s", config.SimpleObfs)
+	}
 	for {
 		c, err := l.Accept()
 		if err != nil {
@@ -112,6 +116,9 @@ func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 			defer c.Close()
 			if config.TCPCork {
 				c = timedCork(c, 10*time.Millisecond, 1280)
+			}
+			if config.SimpleObfs != "" {
+				c = obfs.NewObfsServer(c, config.SimpleObfs)
 			}
 			sc := shadow(c)
 
