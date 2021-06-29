@@ -134,7 +134,7 @@ func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 				return
 			}
 
-			rc, err := net.Dial("tcp", tgt.String())
+			rc, err := config.dialer.Dial("tcp", tgt.String())
 			if err != nil {
 				logf("failed to connect to target: %v", err)
 				return
