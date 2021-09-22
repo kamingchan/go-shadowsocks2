@@ -7,13 +7,16 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/benburkert/dns"
 	"golang.org/x/net/proxy"
 
 	"github.com/shadowsocks/go-shadowsocks2/core"
@@ -41,6 +44,7 @@ func main() {
 		TCP        bool
 		Plugin     string
 		PluginOpts string
+		DNS        string
 	}
 
 	flag.BoolVar(&config.Verbose, "verbose", false, "verbose mode")
@@ -57,7 +61,37 @@ func main() {
 	flag.DurationVar(&config.UDPTimeout, "udptimeout", 5*time.Minute, "UDP tunnel timeout")
 	flag.StringVar(&config.SimpleObfs, "simpleobfs", "", "(server-only) enable built-in simple obfs")
 	flag.StringVar(&config.Proxy, "proxy", "", "(server-only) server proxy")
+	flag.StringVar(&flags.DNS, "dns", "", "(server-only) enable built-in dns client")
 	flag.Parse()
+
+	if flags.DNS != "" {
+		servers := strings.Split(flags.DNS, ",")
+		parsed := make([]net.Addr, len(servers))
+		for idx, server := range servers {
+			host, _port, err := net.SplitHostPort(server)
+			if err != nil {
+				log.Fatal(err)
+			}
+			ip := net.ParseIP(host)
+			if ip == nil {
+				log.Fatalf("invalid dns server: %s", server)
+			}
+			port, err := strconv.Atoi(_port)
+			if err != nil {
+				log.Fatalf("invalid dns server: %s", server)
+			}
+			parsed[idx] = &net.UDPAddr{
+				IP:   ip,
+				Port: port,
+			}
+		}
+		logf("set dns client: %v", servers)
+		ns := dns.NameServers(parsed).RoundRobin()
+		net.DefaultResolver = &net.Resolver{
+			PreferGo: true,
+			Dial:     (&dns.Client{Transport: &dns.Transport{Proxy: ns}}).Dial,
+		}
+	}
 
 	if flags.Keygen > 0 {
 		key := make([]byte, flags.Keygen)
