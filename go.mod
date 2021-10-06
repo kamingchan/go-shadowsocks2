@@ -1,12 +1,15 @@
 module github.com/shadowsocks/go-shadowsocks2
 
-go 1.16
+go 1.17
 
 require (
 	github.com/benburkert/dns v0.0.0-20190225204957-d356cf78cdfc
 	github.com/riobard/go-bloom v0.0.0-20200614022211-cdc8013cb5b3
-	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
-	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/net v0.0.0-20211005215030-d2e5035098b3
+)
+
+require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
+	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 )
