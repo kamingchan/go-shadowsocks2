@@ -20,6 +20,7 @@ import (
 	"golang.org/x/net/proxy"
 
 	"github.com/shadowsocks/go-shadowsocks2/core"
+	"github.com/shadowsocks/go-shadowsocks2/ipv4"
 	"github.com/shadowsocks/go-shadowsocks2/ipv6"
 )
 
@@ -46,6 +47,7 @@ func main() {
 		Plugin     string
 		PluginOpts string
 		DNS        string
+		Prefer4    bool
 		Prefer6    bool
 	}
 
@@ -64,6 +66,7 @@ func main() {
 	flag.StringVar(&config.SimpleObfs, "simpleobfs", "", "(server-only) enable built-in simple obfs")
 	flag.StringVar(&config.Proxy, "proxy", "", "(server-only) server proxy")
 	flag.StringVar(&flags.DNS, "dns", "", "(server-only) enable built-in dns client")
+	flag.BoolVar(&flags.Prefer4, "prefer4", false, "(server-only) prefer IPv4")
 	flag.BoolVar(&flags.Prefer6, "prefer6", false, "(server-only) prefer IPv6")
 	flag.Parse()
 
@@ -155,6 +158,8 @@ func main() {
 				log.Fatal(err)
 			}
 			config.dialer = dialer
+		} else if flags.Prefer4 {
+			config.dialer = ipv4.Dialer
 		} else if flags.Prefer6 {
 			config.dialer = ipv6.Dialer
 		}
