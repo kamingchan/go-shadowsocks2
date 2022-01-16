@@ -120,56 +120,54 @@ func main() {
 		key = k
 	}
 
-	if flags.Server != "" { // server mode
-		addr := flags.Server
-		cipher := flags.Cipher
-		password := flags.Password
-		var err error
+	addr := flags.Server
+	cipher := flags.Cipher
+	password := flags.Password
+	var err error
 
-		if strings.HasPrefix(addr, "ss://") {
-			addr, cipher, password, err = parseURL(addr)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		udpAddr := addr
-
-		if flags.Plugin != "" {
-			addr, err = startPlugin(flags.Plugin, flags.PluginOpts, addr, true)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		ciph, err := core.PickCipher(cipher, key, password)
+	if strings.HasPrefix(addr, "ss://") {
+		addr, cipher, password, err = parseURL(addr)
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
 
-		config.dialer = proxy.Direct
-		if config.Proxy != "" {
-			proxyURL, err := url.Parse(config.Proxy)
-			if err != nil {
-				log.Fatal(err)
-			}
-			dialer, err := proxy.FromURL(proxyURL, proxy.Direct)
-			if err != nil {
-				log.Fatal(err)
-			}
-			config.dialer = dialer
-		} else if flags.Prefer4 {
-			config.dialer = ipv4.Dialer
-		} else if flags.Prefer6 {
-			config.dialer = ipv6.Dialer
-		}
+	udpAddr := addr
 
-		if flags.UDP {
-			go udpRemote(udpAddr, ciph.PacketConn)
+	if flags.Plugin != "" {
+		addr, err = startPlugin(flags.Plugin, flags.PluginOpts, addr, true)
+		if err != nil {
+			log.Fatal(err)
 		}
-		if flags.TCP {
-			go tcpRemote(addr, ciph.StreamConn)
+	}
+
+	config.dialer = proxy.Direct
+	if config.Proxy != "" {
+		proxyURL, err := url.Parse(config.Proxy)
+		if err != nil {
+			log.Fatal(err)
 		}
+		dialer, err := proxy.FromURL(proxyURL, proxy.Direct)
+		if err != nil {
+			log.Fatal(err)
+		}
+		config.dialer = dialer
+	} else if flags.Prefer4 {
+		config.dialer = ipv4.Dialer
+	} else if flags.Prefer6 {
+		config.dialer = ipv6.Dialer
+	}
+
+	ciph, err := core.PickCipher(cipher, key, password)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if flags.UDP {
+		go udpRemote(udpAddr, ciph.PacketConn)
+	}
+	if flags.TCP {
+		go tcpRemote(addr, ciph.StreamConn)
 	}
 
 	sigCh := make(chan os.Signal, 1)
