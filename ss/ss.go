@@ -1,4 +1,4 @@
-package core
+package ss
 
 import (
 	"crypto/md5"

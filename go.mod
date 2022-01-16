@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/benburkert/dns v0.0.0-20190225204957-d356cf78cdfc
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/riobard/go-bloom v0.0.0-20200614022211-cdc8013cb5b3
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20211005215030-d2e5035098b3

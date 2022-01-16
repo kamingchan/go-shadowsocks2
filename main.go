@@ -19,9 +19,9 @@ import (
 	"github.com/benburkert/dns"
 	"golang.org/x/net/proxy"
 
-	"github.com/shadowsocks/go-shadowsocks2/core"
 	"github.com/shadowsocks/go-shadowsocks2/ipv4"
 	"github.com/shadowsocks/go-shadowsocks2/ipv6"
+	"github.com/shadowsocks/go-shadowsocks2/ss"
 )
 
 var config struct {
@@ -37,6 +37,7 @@ var config struct {
 func main() {
 
 	var flags struct {
+		Protocol   string
 		Server     string
 		Cipher     string
 		Key        string
@@ -52,7 +53,8 @@ func main() {
 	}
 
 	flag.BoolVar(&config.Verbose, "verbose", false, "verbose mode")
-	flag.StringVar(&flags.Cipher, "cipher", "AEAD_CHACHA20_POLY1305", "available ciphers: "+strings.Join(core.ListCipher(), " "))
+	flag.StringVar(&flags.Protocol, "protocol", "ss", "available protocols: ss snell")
+	flag.StringVar(&flags.Cipher, "cipher", "AEAD_CHACHA20_POLY1305", "available ciphers: "+strings.Join(ss.ListCipher(), " "))
 	flag.StringVar(&flags.Key, "key", "", "base64url-encoded key (derive from password if empty)")
 	flag.IntVar(&flags.Keygen, "keygen", 0, "generate a base64url-encoded random key of given length in byte")
 	flag.StringVar(&flags.Password, "password", "", "password")
@@ -158,16 +160,23 @@ func main() {
 		config.dialer = ipv6.Dialer
 	}
 
-	ciph, err := core.PickCipher(cipher, key, password)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if flags.UDP {
-		go udpRemote(udpAddr, ciph.PacketConn)
-	}
-	if flags.TCP {
-		go tcpRemote(addr, ciph.StreamConn)
+	switch flags.Protocol {
+	case "snell":
+		go snellRemote(addr, []byte(password))
+	case "ss":
+		ciph, err := ss.PickCipher(cipher, key, password)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if flags.UDP {
+			go udpRemote(udpAddr, ciph.PacketConn)
+		}
+		if flags.TCP {
+			go tcpRemote(addr, ciph.StreamConn)
+		}
+	default:
+		flag.Usage()
+		return
 	}
 
 	sigCh := make(chan os.Signal, 1)

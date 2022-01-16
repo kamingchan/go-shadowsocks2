@@ -28,6 +28,9 @@ func tcpRemote(addr string, shadow func(net.Conn) net.Conn) {
 	}
 	for {
 		c, err := l.Accept()
+		if tc, ok := c.(*net.TCPConn); ok {
+			tc.SetKeepAlive(true)
+		}
 		if err != nil {
 			logf("failed to accept: %v", err)
 			continue

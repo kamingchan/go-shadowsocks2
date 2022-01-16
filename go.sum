@@ -1,5 +1,7 @@
 github.com/benburkert/dns v0.0.0-20190225204957-d356cf78cdfc h1:eyDlmf21vuKN61WoxV2cQLDH/PBDyyjIhUI4kT2o1yM=
 github.com/benburkert/dns v0.0.0-20190225204957-d356cf78cdfc/go.mod h1:6ul4nJKqsreAIBK5lUkibcUn2YBU6CvDzlKDH+dtZsQ=
+github.com/hashicorp/golang-lru v0.5.4 h1:YDjusn29QI/Das2iO9M0BHnIbxPeyuCHsjMW+lJfyTc=
+github.com/hashicorp/golang-lru v0.5.4/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
 github.com/riobard/go-bloom v0.0.0-20200614022211-cdc8013cb5b3 h1:f/FNXud6gA3MNr8meMVVGxhp+QBTqY91tM8HjEuMjGg=
 github.com/riobard/go-bloom v0.0.0-20200614022211-cdc8013cb5b3/go.mod h1:HgjTstvQsPGkxUsCd2KWxErBblirPizecHcpD3ffK+s=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 h1:7I4JAnoQBe7ZtJcBaYHi5UtiO8tQHbUSXxL+pnGRANg=
